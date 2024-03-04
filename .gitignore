@@ -1,0 +1,15 @@
+# Terraform/OpenTofu stuff
+.terraform
+.terraform.lock.hcl
+
+# sops config
+.sops.yaml
+
+# Unencrypted secrets files
+secrets.yaml
+
+# Common ssh keys.
+id_ed25519
+id_rsa
+id_dsa
+id_ecdsa
