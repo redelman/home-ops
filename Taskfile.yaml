@@ -34,7 +34,7 @@ tasks:
 
   bootstrap:
     desc: "Bootstraps a new cluster"
-    cmd: talhelper bootstrap | bash
+    cmd: talhelper gencommand bootstrap | bash
   
   kubeconfig:
     desc: Fetches the kubeconfig from Talos
