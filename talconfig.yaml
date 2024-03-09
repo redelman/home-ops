@@ -1,0 +1,123 @@
+---
+clusterName: &cluster home
+endpoint: https://192.168.64.20:6443
+talosVersion: v1.6.4
+kubernetesVersion: v1.28.1
+allowSchedulingOnControlPlanes: true
+domain: spyrja.internal
+
+additionalApiServerCertSans: &sans
+ - 127.0.0.1 # KubePrism
+ - kubernetes.spyrja.internal
+ 
+additionalMachineCertSans: *sans
+
+#cniConfig:
+#  name: none
+
+nodes:
+  - hostname: controller
+    controlPlane: true
+    ignoreHostname: true
+    ipAddress: 192.168.64.21, 192.168.64.22, 192.168.64.23
+    installDisk: /dev/nvme0n1
+    schematic:
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+            - siderolabs/gvisor
+
+controlPlane:
+  networkInterfaces:
+    - interface: enp44s0
+      dhcp: true
+      vip:
+        ip: 192.168.64.20
+
+  machineSpec:
+    mode: metal
+    arch: amd64
+    useUKI: true
+    secureboot: true
+  patches:
+    # Cluster configuration
+    # - |-
+    #   cluster:
+    #     allowSchedulingOnMasters: true
+    #     controllerManager:
+    #       extraArgs:
+    #         bind-address: 0.0.0.0
+    #     proxy:
+    #       disabled: true
+    #     scheduler:
+    #       extraArgs:
+    #         bind-address: 0.0.0.0
+
+    # ETCD configuration
+    # - |-
+    #   cluster:
+    #     etcd:
+    #       extraArgs:
+    #         listen-metrics-urls: http://0.0.0.0:2381
+    #       advertisedSubnets:
+    #         - "192.168.64.0/24"0
+
+    # Disable default API server admission plugins.
+    # - |-
+    #   - op: remove
+    #     path: /cluster/apiServer/admissionControl
+
+    # Enable K8s Talos API Access
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:admin
+            allowedKubernetesNamespaces:
+              - system-upgrade
+
+patches: 
+  # - |-
+  #   machine:
+  #     network:
+  #       nameservers:
+  #         - 192.168.64.1
+
+  - |-
+    machine:
+      time:
+        disabled: false
+        servers:
+          - 192.168.64.1
+
+  # - |-
+  #   machine:
+  #     systemDiskEncryption:
+  #       ephemeral:
+  #         provider: luks2
+  #         keys:
+  #           - slot: 0
+  #             tpm: {}
+  #       state:
+  #         provider: luks2
+  #         keys:
+  #           - slot: 0
+  #             tpm: {}
+
+  # Configure containerd
+  # - |-
+  #   machine:
+  #     files:
+  #       - op: create
+  #         path: /etc/cri/conf.d/20-customization.part
+  #         content: |-
+  #           [plugins."io.containerd.grpc.v1.cri"]
+  #             enable_unprivileged_ports = true
+  #             enable_unprivileged_icmp = true
+  #           [plugins."io.containerd.grpc.v1.cri".containerd]
+  #             discard_unpacked_layers = false
+  #           [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  #             discard_unpacked_layers = false
