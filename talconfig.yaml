@@ -66,11 +66,6 @@ controlPlane:
     #       advertisedSubnets:
     #         - "192.168.64.0/24"0
 
-    # Disable default API server admission plugins.
-    # - |-
-    #   - op: remove
-    #     path: /cluster/apiServer/admissionControl
-
     # Enable K8s Talos API Access
     - |-
       machine:
