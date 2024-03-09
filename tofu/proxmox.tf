@@ -157,7 +157,8 @@ resource "proxmox_virtual_environment_vm" "eyedeck-jh" {
   lifecycle {
     ignore_changes = [
       started,
-      initialization[0].user_data_file_id
+      initialization[0].user_data_file_id,
+      clone[0].vm_id
     ]
   }
 }
@@ -235,93 +236,3 @@ resource "proxmox_virtual_environment_download_file" "talos_1_6_4_nocloud" {
   file_name    = "talos_v1.6.4-nocloud-amd64.iso"
 }
 
-resource "proxmox_virtual_environment_vm" "talos-tmp-3" {
-  name      = "talos-tmp-3"
-  description = "Managed by Terraform"
-  tags        = ["terraform", "talos", "quok"]
-
-  node_name = "pve"
-  
-  agent {
-    enabled = true
-    trim = true
-  }
-
-  initialization {
-    ip_config {
-      ipv4 {
-        address = "192.168.64.23/24"
-        gateway = "192.168.64.1"
-      }
-    }
-
-    dns {
-      servers = ["192.168.64.1"]
-      domain = "spyrja.internal"
-    }
-  }
-
-  machine = "q35"
-
-  operating_system {
-    type = "l26"
-  }
-
-  stop_on_destroy = true
-
-  cpu {
-    type = "x86-64-v2-AES"
-    sockets = 1
-    cores = 4
-  }
-
-  memory  {
-    dedicated = 8192
-  }
-
-  started = true
-
-  cdrom {
-    file_id = proxmox_virtual_environment_download_file.talos_1_6_4_nocloud.id
-    enabled = true
-  }
- 
-  disk {
-    datastore_id = "local-lvm"
-    interface    = "virtio0"
-    iothread     = false
-    discard      = "on"
-    size         = 30
-    file_format  = "raw"
-  }
-
-  disk {
-    datastore_id = "local-lvm"
-    interface    = "virtio1"
-    iothread     = false
-    discard      = "on"
-    size         = 250
-    file_format  = "raw"
-  }
-
-  network_device {
-    bridge = "vmbr0"
-  }
-
-  bios = "ovmf"
-
-  efi_disk {
-    file_format  = "raw"
-    type = "4m"
-  }
- 
-  tpm_state {
-    version = "v2.0"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      started
-    ]
-  }
-}
