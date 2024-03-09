@@ -1,0 +1,65 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+  CLUSTERCONFIG_DIR: "{{.ROOT_DIR}}/clusterconfig"
+  KUBECONFIG_FILE: "{{.CLUSTERCONFIG_DIR}}/kubeconfig"
+
+env:
+  KUBECONFIG: "{{.KUBECONFIG_FILE}}"
+  TALOSCONFIG: "{{.CLUSTERCONFIG_DIR}}/talosconfig"
+
+tasks:
+
+  default: task -l
+
+  soft-reset: 
+    desc: "Resets nodes back to maintenance mode. Nodes are ready for immediate redeployment."
+    cmd: talhelper gencommand reset --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+
+  gensecrets:
+    desc: "Generates Talos cluster secrets"
+    cmd: talhelper gensecrets > talhelper.sops.yaml
+
+  genconfig:
+    desc: "Generates Talos machine configurations"
+    cmd: talhelper genconfig
+  
+  apply:
+    desc: "Applies talos machine configurations to all nodes"
+    cmd: talhelper gencommand apply --extra-flags="--insecure" | bash
+
+  bootstrap:
+    desc: "Bootstraps a new cluster"
+    cmd: talhelper bootstrap | bash
+  
+  kubeconfig:
+    desc: Fetches the kubeconfig from Talos
+    cmd: talhelper gencommand kubeconfig --extra-flags="--force" | bash
+
+  cilium:
+    desc: "Uses helmfile to install cilium"
+    cmd: helmfile --file {{.BOOTSTRAP_DIR}}/helmfile.yaml apply --skip-diff-on-install --suppress=diff
+
+  flux:
+    desc: "Bootstraps FluxCD into a new cluster"
+    cmd:  flux bootstrap github --owner=redelman  --repository=home-ops --branch=main --path=/kubernetes --private=false --personal=true --cluster-domain spyrja.internal
+
+  install-minimal:
+    desc: "Applies Talos machine configs, bootstraps etcd, and installs cilium"
+    cmds:
+      - task: genconfig
+      - task: apply
+      - task: bootstrap
+      - task: kubeconfig
+      - task: cilium
+  
+  install:
+    desc: "Installs and fully configures a new kubernetes cluster"
+    cmds:
+      - task: install-minimal
+      - task: flux
+
