@@ -127,10 +127,8 @@
       "customType": "regex",
       "description": ["Process custom dependencies"],
       "fileMatch": [
-        "(^|/).taskfiles/.+\\.ya?ml$",
-        "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$",
-        "(^|/)talconfig\\.yaml$,"
+        "(^|/)kubernetes/.+\\.ya?ml$",
+        "(^|/)talconfig\\.yaml$"
       ],
       "matchStrings": [
         // # renovate: datasource=github-releases depName=k3s-io/k3s
