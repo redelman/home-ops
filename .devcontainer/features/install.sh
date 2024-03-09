@@ -20,6 +20,7 @@ for app in \
     "direnv/direnv!!?as=direnv&type=script" \
     "fluxcd/flux2!!?as=flux&type=script" \
     "go-task/task!!?as=task&type=script" \
+    "hairyhenderson\gomplate!!!?as=gomplate&type=script" \
     "helmfile/helmfile!!?as=helmfile&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
     "kubernetes-sigs/krew!!?as=krew&type=script" \
