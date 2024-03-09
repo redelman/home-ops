@@ -12,8 +12,8 @@ additionalApiServerCertSans: &sans
  
 additionalMachineCertSans: *sans
 
-#cniConfig:
-#  name: none
+cniConfig:
+  name: none
 
 nodes:
   - hostname: controller
@@ -40,19 +40,20 @@ controlPlane:
     arch: amd64
     useUKI: true
     secureboot: true
+
   patches:
     # Cluster configuration
-    # - |-
-    #   cluster:
-    #     allowSchedulingOnMasters: true
-    #     controllerManager:
-    #       extraArgs:
-    #         bind-address: 0.0.0.0
-    #     proxy:
-    #       disabled: true
-    #     scheduler:
-    #       extraArgs:
-    #         bind-address: 0.0.0.0
+    - |-
+      cluster:
+        allowSchedulingOnMasters: true
+        controllerManager:
+          extraArgs:
+            bind-address: 0.0.0.0
+        proxy:
+          disabled: true
+        scheduler:
+          extraArgs:
+            bind-address: 0.0.0.0
 
     # ETCD configuration
     # - |-
