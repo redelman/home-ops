@@ -11,6 +11,9 @@ config.yaml
 # Unencrypted secrets files
 secrets.yaml
 
+# Don't include the kubeconfig
+kubeconfig
+
 # Common ssh keys.
 id_ed25519
 id_rsa
