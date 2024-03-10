@@ -93,14 +93,14 @@ controlPlane:
               - system-upgrade
 
 patches:
-  {{- if has .config "nameservers" }}
+  {{- if and (not .config.dhcp) (has .config "nameservers") }}
   # Set DNS Nameserver(s)
-  # - |-
-  #   machine:
-  #     network:
-  #       nameservers:
+  - |-
+    machine:
+      network:
+        nameservers:
           {{- range .config.nameservers }}
-  #         - {{ . }}
+          - {{ . }}
           {{- end }}
   {{- end }}
 
