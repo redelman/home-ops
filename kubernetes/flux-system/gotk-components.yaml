@@ -3610,13 +3610,13 @@ spec:
     spec:
       containers:
       - args:
-        - --events-addr=http://notification-controller.flux-system.svc.spyrja.internal./
+        - --events-addr=http://notification-controller.flux-system.svc.k8s.spyrja.internal./
         - --watch-all-namespaces=true
         - --log-level=info
         - --log-encoding=json
         - --enable-leader-election
         - --storage-path=/data
-        - --storage-adv-addr=source-controller.$(RUNTIME_NAMESPACE).svc.spyrja.internal.
+        - --storage-adv-addr=source-controller.$(RUNTIME_NAMESPACE).svc.k8s.spyrja.internal.
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
@@ -5350,7 +5350,7 @@ spec:
     spec:
       containers:
       - args:
-        - --events-addr=http://notification-controller.flux-system.svc.spyrja.internal./
+        - --events-addr=http://notification-controller.flux-system.svc.k8s.spyrja.internal./
         - --watch-all-namespaces=true
         - --log-level=info
         - --log-encoding=json
@@ -7707,7 +7707,7 @@ spec:
     spec:
       containers:
       - args:
-        - --events-addr=http://notification-controller.flux-system.svc.spyrja.internal./
+        - --events-addr=http://notification-controller.flux-system.svc.k8s.spyrja.internal./
         - --watch-all-namespaces=true
         - --log-level=info
         - --log-encoding=json
