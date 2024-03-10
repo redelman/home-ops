@@ -16,24 +16,41 @@ tasks:
 
   default: task -l
 
+  init:
+    desc: Performs critical first-time setup of the repo.
+    cmds:
+      - echo "Creating config.yaml"
+      - cp config.yaml.sample config.yaml
+    status: 
+      - test -f config.yaml
+
   soft-reset: 
-    desc: "Resets nodes back to maintenance mode. Nodes are ready for immediate redeployment."
+    desc: Resets nodes back to maintenance mode. Nodes are ready for immediate redeployment.
+    prompt: This will reset your nodes, killing your kubernetes cluster. Are you sure?
     cmd: talhelper gencommand reset --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
   gensecrets:
-    desc: "Generates Talos cluster secrets"
-    cmd: talhelper gensecrets > talhelper.sops.yaml
+    desc: Generates Talos cluster secrets
+    cmds:
+      - talhelper gensecret > talhelper.sops.yaml
+      - sops -e -i talhelper.sops.yaml
+    status:
+      - test -f talhelper.sops.yaml
 
   genconfig:
-    desc: "Generates Talos machine configurations"
-    cmd: talhelper genconfig
+    desc: Generates config from templates.
+    run: once
+    cmds:
+      - gomplate
+      - talhelper genconfig
   
   apply:
-    desc: "Applies talos machine configurations to all nodes"
+    desc: Applies talos machine configurations to all nodes
     cmd: talhelper gencommand apply --extra-flags="--insecure" | bash
+    deps: [genconfig]
 
   bootstrap:
-    desc: "Bootstraps a new cluster"
+    desc: Bootstraps a new cluster
     cmds:
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
       - sleep 10
@@ -42,40 +59,44 @@ tasks:
     desc: Fetches the kubeconfig from Talos
     cmd: until talhelper gencommand kubeconfig --extra-flags="--force" | bash; do sleep 10; done
 
-  cilium:
-    desc: "Uses helmfile to install cilium"
+  cilium-init:
+    desc: Uses helmfile to install cilium with initial (not full) config.
     cmds:
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - helmfile --file {{.BOOTSTRAP_DIR}}/helmfile.yaml apply --skip-diff-on-install --suppress=diff
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
 
   flux:
-    desc: "Bootstraps FluxCD into a new cluster"
+    desc: Bootstraps FluxCD into a new cluster
     cmd:  flux bootstrap github --owner=redelman --repository=home-ops --branch=main --path=/kubernetes --private=false --personal=true --cluster-domain spyrja.internal
 
   install-minimal:
-    desc: "Applies Talos machine configs, bootstraps etcd, and installs cilium"
+    desc: Applies Talos machine configs, bootstraps etcd, and installs cilium
     cmds:
+      - task: gensecrets
       - task: genconfig
       - task: apply
       - task: bootstrap
       - task: kubeconfig
-      - task: cilium
+      - task: cilium-init
   
   install:
-    desc: "Installs and fully configures a new kubernetes cluster"
+    desc: Installs and fully configures a new kubernetes cluster
     cmds:
       - task: install-minimal
       - task: flux
 
+  rollback-talos:
+    desc: Rolls back the last Talos update.
+
   upgrade-talos:
-    desc: "Upgrades Talos to a newer version"
+    desc: Upgrades Talos to a newer version
     cmd: talhelper gencommand upgrade | bash
 
   upgrade-talos-staged:
-    desc: "Stages an upgrade for Talos. Must reboot the node for the upgrade to take affect."
+    desc: Stages an upgrade for Talos. Must reboot the node for the upgrade to take affect.
     cmd: talhelper gencommand upgrade --extra-flags="--stage" | bash
 
   upgrade-k8s:
-    desc: "Upgrades Kubernetes to a newer version"
+    desc: Upgrades Kubernetes to a newer version
     cmd: talhelper gencommand upgrade-k8s | bash
