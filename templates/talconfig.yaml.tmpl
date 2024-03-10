@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
+---
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+talosVersion: v1.6.6
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.29.2
+
+clusterName: {{  index .config "cluster_name" | default "home-kubernetes" }}
+endpoint: https://{{ .config.kubernetes_api_endpoint }}:6443
+domain: {{ index .config "cluster_domain" | default "cluster.local" }}
+
+additionalApiServerCertSans: &sans
+ - 127.0.0.1 # KubePrism
+ {{- if has .config "kubernetes_apiserver_name" }}
+ - {{ .config.kubernetes_apiserver_name }}.{{ index .config "cluster_domain" | default "cluster.local" }}
+ {{- end }}
+ 
+additionalMachineCertSans: *sans
+
+cniConfig:
+  name: none
+
+nodes:
+  {{- range .config.node_inventory }}
+  - hostname: {{ .hostname }}
+    controlPlane: {{ .controlplane }}
+    {{- if $.config.dhcp }}
+    ignoreHostname: true
+    {{- end }}
+    ipAddress: {{ .ip_address }}
+    installDisk: {{ .install_disk }}
+    machineSpec:
+      {{- if has . "mode" }}
+      mode: {{ .mode }}
+      {{- end }}
+      {{- if has . "arch" }}
+      arch: {{ .arch }}
+      {{- end }}
+      {{- if $.config.bootstrap_talos.secureboot }}
+      useUKI: true
+      secureboot: true
+      {{- end }}
+    {{- if has $.config.bootstrap_talos "extensions" }}
+    schematic:
+      customization:
+        systemExtensions:
+          officialExtensions:
+            {{- range $.config.bootstrap_talos.extensions }}
+            - {{ . }}
+            {{- end }}
+    {{- end }}
+  {{- end }}
+
+controlPlane:
+  networkInterfaces:
+    - interface: enp44s0
+      dhcp: {{ .config.dhcp }}
+      vip:
+        ip: {{ .config.kubernetes_api_endpoint }}
+
+  patches:
+    # Cluster configuration
+    - |-
+      cluster:
+        allowSchedulingOnMasters: true
+        controllerManager:
+          extraArgs:
+            bind-address: 0.0.0.0
+        proxy:
+          disabled: true
+        scheduler:
+          extraArgs:
+            bind-address: 0.0.0.0
+
+    # ETCD configuration
+    # - |-
+    #   cluster:
+    #     etcd:
+    #       extraArgs:
+    #         listen-metrics-urls: http://0.0.0.0:2381
+    #       advertisedSubnets:
+    #         - {{ .config.node_network }}
+
+    # Enable K8s Talos API Access
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:admin
+            allowedKubernetesNamespaces:
+              - system-upgrade
+
+patches:
+  {{- if has .config "nameservers" }}
+  # Set DNS Nameserver(s)
+  # - |-
+  #   machine:
+  #     network:
+  #       nameservers:
+          {{- range .config.nameservers }}
+  #         - {{ . }}
+          {{- end }}
+  {{- end }}
+
+  # Set NTP server(s)
+  - |-
+    machine:
+      time:
+        disabled: false
+        servers:
+        {{- if has .config "ntp_servers" }}
+        {{- range .config.ntp_servers }}
+          - {{ . }}
+        {{- end }}
+        {{- else }}
+          - pool.ntp.org
+        {{- end }}
+
+  {{ if and (has .config.bootstrap_talos "encrypt_disk_with_tpm") .config.bootstrap_talos.encrypt_disk_with_tpm -}}
+  # - |-
+  #   machine:
+  #     systemDiskEncryption:
+  #       ephemeral:
+  #         provider: luks2
+  #         keys:
+  #           - slot: 0
+  #             tpm: {}
+  #       state:
+  #         provider: luks2
+  #         keys:
+  #           - slot: 0
+  #             tpm: {}
+  {{- end }}
+
+  # Configure containerd
+  # - |-
+  #   machine:
+  #     files:
+  #       - op: create
+  #         path: /etc/cri/conf.d/20-customization.part
+  #         content: |-
+  #           [plugins."io.containerd.grpc.v1.cri"]
+  #             enable_unprivileged_ports = true
+  #             enable_unprivileged_icmp = true
+  #           [plugins."io.containerd.grpc.v1.cri".containerd]
+  #             discard_unpacked_layers = false
+  #           [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  #             discard_unpacked_layers = false

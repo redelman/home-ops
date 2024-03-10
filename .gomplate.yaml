@@ -1,0 +1,10 @@
+inputFiles: 
+  - templates/talconfig.yaml.tmpl
+  - templates/cilium-init-values.yaml.tmpl
+outputFiles:
+  - talconfig.yaml
+  - bootstrap/cilium-init-values.yaml
+
+context:
+  config:
+    url: config.yaml

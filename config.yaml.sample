@@ -1,0 +1,75 @@
+# Name of your kubernetes cluster. Defaults to home-kubernetes
+cluster_name: home
+
+# cluster_domain defaults to "cluster.local" if not specified.
+# Note that setting this may lead to DNS problems if other apps (like fluxcd)
+# assume a default cluster domain and you do not set it.
+# If unsure, leave this commented to use the default value
+cluster_domain: spyrja.internal
+
+# IP address for the VIP to access the kubernetes api server
+kubernetes_api_endpoint: 192.168.64.20
+
+# If you want to use DNS to access the kubernetes api server,
+# put that name here. The cluster_domain will be added to it.
+kubernetes_apiserver_name: kubernetes
+
+# The network your nodes are on
+node_network: 192.168.64.0/24
+
+# Default gateway for your nodes. Defaults to x.x.x.1.
+# Ignored if using dhcp.
+# FIXME: Actually use this value as approprite in the template
+default_gateway: 192.168.64.1
+
+# NTP server for your nodes, if you have one. Defaults to pool.ntp.org.
+# This is not ignored if using dhcp, since it's not always passed to the
+# dhcp client.
+ntp_servers:
+  - 192.168.64.1
+
+# If your nodes are configured to use DHCP, set this to true.
+# Note that this setting affects all nodes.
+dhcp: true
+
+# Nameservers for your nodes. If unknown, leave as default. If your nodes use
+# dhcp, this value is ignored.
+nameservers: 
+  - 192.168.64.1
+
+# The network your pods will use. Safe to leave as default below.
+pod_network: 10.244.0.0/16
+# The network your services will use. Safe to leave as default below.
+service_network: 10.96.0.0/16
+
+bootstrap_talos:
+  # If you need any additional system extensions, list them here. Image Factory will
+  # automatically be used to create a schematic id.
+  extensions:
+    - siderolabs/gvisor
+    - siderolabs/intel-ucode
+  
+  # If you have secureboot enabled, set this to true.
+  secureboot: true
+
+  # Requires a TPM 2.0 and secureboot. Uses the TPM the encrypt the install disk.
+  encrypt_disk_with_tpm: true
+
+node_inventory:
+    # If you are running dhcp, set this to the role: controller or worker
+  - hostname: controller
+    # If you are running dhcp, list the addresses of the nodes here, as below.
+    # Otherwise, list at least 1 IP address.
+    ip_address: 192.168.64.21, 192.168.64.22, 192.168.64.23
+    # The disk to install to. Talos's installSelector isn't yet supported, sorry.
+    install_disk: /dev/nvme0n1
+    # Change to false for worker nodes.
+    controlplane: true
+
+    # If you are running on a cloud service, or proxmox, change this as appropriate.
+    # For example, on proxmox change to 'nocloud'. If you are on bare metal, you 
+    # can leave this commented out.
+    # mode: metal
+
+    # If you are not on amd64, uncomment this:
+    # arch: arm64
