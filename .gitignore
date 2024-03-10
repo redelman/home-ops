@@ -5,6 +5,9 @@
 # sops config
 .sops.yaml
 
+# Don't include config.yaml, as it may contain secrets in the future
+config.yaml
+
 # Unencrypted secrets files
 secrets.yaml
 
