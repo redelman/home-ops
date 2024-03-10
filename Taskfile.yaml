@@ -68,3 +68,14 @@ tasks:
       - task: install-minimal
       - task: flux
 
+  upgrade-talos:
+    desc: "Upgrades Talos to a newer version"
+    cmd: talhelper gencommand upgrade | bash
+
+  upgrade-talos-staged:
+    desc: "Stages an upgrade for Talos. Must reboot the node for the upgrade to take affect."
+    cmd: talhelper gencommand upgrade --extra-flags="--stage" | bash
+
+  upgrade-k8s:
+    desc: "Upgrades Kubernetes to a newer version"
+    cmd: talhelper gencommand upgrade-k8s | bash
