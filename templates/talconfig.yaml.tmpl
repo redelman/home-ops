@@ -111,14 +111,26 @@ patches:
         disabled: false
         servers:
         {{- if has .config "ntp_servers" }}
-        {{- range .config.ntp_servers }}
+          {{- range .config.ntp_servers }}
           - {{ . }}
-        {{- end }}
+          {{- end }}
         {{- else }}
           - pool.ntp.org
         {{- end }}
 
+  {{ if has .config.bootstrap_talos "extra_kernel_args" }}
+  # Extra kernel parameters
+  - |-
+    machine:
+      install:
+        extraKernelArgs:
+          {{- range .config.bootstrap_talos.extra_kernel_args }}
+          - {{ . }}
+          {{- end }}
+  {{- end }}
+
   {{ if and (has .config.bootstrap_talos "encrypt_disk_with_tpm") .config.bootstrap_talos.encrypt_disk_with_tpm -}}
+  # Disk encryption
   # - |-
   #   machine:
   #     systemDiskEncryption:
