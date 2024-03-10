@@ -51,7 +51,7 @@ tasks:
 
   flux:
     desc: "Bootstraps FluxCD into a new cluster"
-    cmd:  flux bootstrap github --owner=redelman  --repository=home-ops --branch=main --path=/kubernetes --private=false --personal=true --cluster-domain spyrja.internal
+    cmd:  flux bootstrap github --owner=redelman --repository=home-ops --branch=main --path=/kubernetes --private=false --personal=true --cluster-domain spyrja.internal
 
   install-minimal:
     desc: "Applies Talos machine configs, bootstraps etcd, and installs cilium"
