@@ -29,6 +29,11 @@ tasks:
     prompt: This will reset your nodes, killing your kubernetes cluster. Are you sure?
     cmd: talhelper gencommand reset --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
+  nuke-cluster: 
+    desc: Wipes the system disk and reboots nodes. Nodes will not boot from system disk after this.
+    prompt: This will nuke your nodes. They will require boot media after this. Are you sure?
+    cmd: talhelper gencommand reset --extra-flags="--reboot --graceful=false --wait=false" | bash
+
   gensecrets:
     desc: Generates Talos cluster secrets
     cmds:
@@ -79,6 +84,7 @@ tasks:
       - task: bootstrap
       - task: kubeconfig
       - task: cilium-init
+      - task: health
   
   install:
     desc: Installs and fully configures a new kubernetes cluster
@@ -100,3 +106,7 @@ tasks:
   upgrade-k8s:
     desc: Upgrades Kubernetes to a newer version
     cmd: talhelper gencommand upgrade-k8s | bash
+
+  health:
+    desc: Runs healthchecks on the cluster
+    cmd: talosctl health --server=false
