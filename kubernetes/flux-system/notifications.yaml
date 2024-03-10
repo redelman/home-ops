@@ -20,7 +20,7 @@ spec:
   summary: "cluster addons"
   providerRef:
     name: discord
-  eventSeverity: warn
+  eventSeverity: error
   eventSources:
     - kind: GitRepository
       name: '*'
