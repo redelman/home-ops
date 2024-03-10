@@ -17,7 +17,7 @@ metadata:
 spec:
   providerRef:
     name: flux-system
-  eventSeverity: warn
+  eventSeverity: error
   eventSources:
     - kind: Kustomization
       name: podinfo
