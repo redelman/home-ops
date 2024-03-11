@@ -136,19 +136,19 @@ patches:
 
   {{ if and (has .config.bootstrap_talos "encrypt_disk_with_tpm") .config.bootstrap_talos.encrypt_disk_with_tpm -}}
   # Disk encryption
-  # - |-
-  #   machine:
-  #     systemDiskEncryption:
-  #       ephemeral:
-  #         provider: luks2
-  #         keys:
-  #           - slot: 0
-  #             tpm: {}
-  #       state:
-  #         provider: luks2
-  #         keys:
-  #           - slot: 0
-  #             tpm: {}
+  - |-
+    machine:
+      systemDiskEncryption:
+        ephemeral:
+          provider: luks2
+          keys:
+            - slot: 0
+              tpm: {}
+        state:
+          provider: luks2
+          keys:
+            - slot: 0
+              tpm: {}
   {{- end }}
 
   # Configure containerd
