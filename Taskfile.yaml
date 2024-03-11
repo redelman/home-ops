@@ -7,7 +7,7 @@ vars:
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
   CLUSTERCONFIG_DIR: "{{.ROOT_DIR}}/clusterconfig"
   KUBECONFIG_FILE: "{{.CLUSTERCONFIG_DIR}}/kubeconfig"
-  TALSECRETS_FILE: talsecrets.sops.yaml
+  TALSECRETS_FILE: talsecret.sops.yaml
 
 env:
   KUBECONFIG: "{{.KUBECONFIG_FILE}}"
@@ -47,14 +47,14 @@ tasks:
     desc: Generates templates from config.yaml values.
     run: once
     cmd: gomplate
+    status:
+      - test -f talconfig.yaml
 
   genconfig:
     desc: Generates talconfig.yaml. 
     run: once
     cmds:
       - talhelper genconfig
-    status:
-      - test -f talconfig.yaml
   
   apply-init:
     desc: Applies talos machine configurations to all nodes.
