@@ -7,6 +7,7 @@ vars:
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
   CLUSTERCONFIG_DIR: "{{.ROOT_DIR}}/clusterconfig"
   KUBECONFIG_FILE: "{{.CLUSTERCONFIG_DIR}}/kubeconfig"
+  TALSECRETS_FILE: talsecrets.sops.yaml
 
 env:
   KUBECONFIG: "{{.KUBECONFIG_FILE}}"
@@ -37,22 +38,34 @@ tasks:
   gensecrets:
     desc: Generates Talos cluster secrets
     cmds:
-      - talhelper gensecret > talhelper.sops.yaml
-      - sops -e -i talhelper.sops.yaml
+      - talhelper gensecret > {{.TALSECRETS_FILE}}
+      - sops -e -i {{.TALSECRETS_FILE}}
     status:
-      - test -f talhelper.sops.yaml
+      - test -f {{.TALSECRETS_FILE}}
+
+  gentemplates:
+    desc: Generates templates from config.yaml values.
+    run: once
+    cmd: gomplate
 
   genconfig:
-    desc: Generates config from templates.
+    desc: Generates talconfig.yaml. 
     run: once
     cmds:
-      - gomplate
       - talhelper genconfig
+    status:
+      - test -f talconfig.yaml
   
+  apply-init:
+    desc: Applies talos machine configurations to all nodes.
+    internal: true
+    run: once
+    cmd: talhelper gencommand apply --extra-flags="--insecure" | bash
+    deps: [gensecrets, genconfig]
+
   apply:
     desc: Applies talos machine configurations to all nodes
-    cmd: talhelper gencommand apply --extra-flags="--insecure" | bash
-    deps: [genconfig]
+    cmd: talhelper gencommand apply | bash
 
   bootstrap:
     desc: Bootstraps a new cluster
@@ -66,6 +79,8 @@ tasks:
 
   cilium-init:
     desc: Uses helmfile to install cilium with initial (not full) config.
+    run: once
+    internal: true
     cmds:
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - helmfile --file {{.BOOTSTRAP_DIR}}/helmfile.yaml apply --skip-diff-on-install --suppress=diff
@@ -79,8 +94,9 @@ tasks:
     desc: Applies Talos machine configs, bootstraps etcd, and installs cilium
     cmds:
       - task: gensecrets
+      - task: gentemplates
       - task: genconfig
-      - task: apply
+      - task: apply-init
       - task: bootstrap
       - task: kubeconfig
       - task: cilium-init
@@ -110,3 +126,12 @@ tasks:
   health:
     desc: Runs healthchecks on the cluster
     cmd: talosctl health --server=false
+
+  repo-reset:
+    desc: Deletes all generated files, except your config.yaml
+    prompt: You will lose access to your cluster after doing this. Are you sure?
+    cmds:
+      - rm -rf {{.CLUSTERCONFIG_DIR}}
+      - rm -f {{.TALSECRETS_FILE}}
+      - rm -f talconfig.yaml
+      - rm -f {{.BOOSTRAP_DIR}}/cilium-init-values.yaml
