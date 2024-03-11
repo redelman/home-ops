@@ -62,10 +62,15 @@ controlPlane:
     # Cluster configuration
     - |-
       cluster:
-        allowSchedulingOnMasters: true
+        allowSchedulingOnControlPlanes: true
         controllerManager:
           extraArgs:
             bind-address: 0.0.0.0
+        network:
+          podSubnets:
+            - {{ .config.pod_network }}
+          serviceSubnets:
+            - {{ .config.service_network }}
         proxy:
           disabled: true
         scheduler:
