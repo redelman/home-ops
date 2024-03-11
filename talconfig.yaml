@@ -1,11 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.6.6
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.29.2
-clusterName: &cluster home
+
+clusterName: home
 endpoint: https://192.168.64.20:6443
-allowSchedulingOnControlPlanes: true
 domain: spyrja.internal
 
 additionalApiServerCertSans: &sans
@@ -23,12 +24,15 @@ nodes:
     ignoreHostname: true
     ipAddress: 192.168.64.21, 192.168.64.22, 192.168.64.23
     installDisk: /dev/nvme0n1
+    machineSpec:
+      useUKI: true
+      secureboot: true
     schematic:
       customization:
         systemExtensions:
           officialExtensions:
-            - siderolabs/intel-ucode
             - siderolabs/gvisor
+            - siderolabs/intel-ucode
 
 controlPlane:
   networkInterfaces:
@@ -37,20 +41,19 @@ controlPlane:
       vip:
         ip: 192.168.64.20
 
-  machineSpec:
-    mode: metal
-    arch: amd64
-    useUKI: true
-    secureboot: true
-
   patches:
     # Cluster configuration
     - |-
       cluster:
-        allowSchedulingOnMasters: true
+        allowSchedulingOnControlPlanes: true
         controllerManager:
           extraArgs:
             bind-address: 0.0.0.0
+        network:
+          podSubnets:
+            - 10.244.0.0/16
+          serviceSubnets:
+            - 10.96.0.0/16
         proxy:
           disabled: true
         scheduler:
@@ -64,7 +67,7 @@ controlPlane:
     #       extraArgs:
     #         listen-metrics-urls: http://0.0.0.0:2381
     #       advertisedSubnets:
-    #         - "192.168.64.0/24"0
+    #         - 192.168.64.0/24
 
     # Enable K8s Talos API Access
     - |-
@@ -77,13 +80,9 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
-patches: 
-  # - |-
-  #   machine:
-  #     network:
-  #       nameservers:
-  #         - 192.168.64.1
+patches:
 
+  # Set NTP server(s)
   - |-
     machine:
       time:
@@ -91,6 +90,9 @@ patches:
         servers:
           - 192.168.64.1
 
+  
+
+  # Disk encryption
   # - |-
   #   machine:
   #     systemDiskEncryption:
