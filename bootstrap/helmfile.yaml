@@ -10,4 +10,4 @@ releases:
     version: 1.15.1
     wait: true
     values:
-      - ./cilium-init-values.yaml
+      - ./cilium/cilium-init-values.yaml

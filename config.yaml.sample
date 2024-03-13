@@ -86,4 +86,22 @@ node_inventory: []
   #   controlplane: true
   #   mode: metal
   #   arch: arm64
-  
+
+### Settings to bootstrap FluxCD
+bootstrap_fluxcd:
+  # If you want to use fluxcd, set this to true
+  enabled: False
+
+  # URL to your git repo. Suggest to use ssh:// access
+  repo_url: 
+
+  # Branch to use. Defaults to 'main'
+  branch_name: main
+
+  # Path to the SSH key to use. It must have read/write access. Suggested
+  # to use a separate user for FluxCD if at all possible. If you're using 
+  # github and not a separate user (for personal repos, for example), this
+  # must be set as a deploy key in the repo settings. If you don't have an
+  # ssh key, onecan be automatically generated for you by running 
+  # `task gen-ssh-key`.
+  ssh_key_file: id_ed25519

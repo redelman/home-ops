@@ -1,10 +1,14 @@
 inputFiles: 
-  - templates/talconfig.yaml.tmpl
-  - templates/cilium-init-values.yaml.tmpl
+  - templates/talconfig.tmpl.yaml
+  - templates/cilium/cilium-init-values.tmpl.yaml
+  - templates/fluxcd/ssh-key-secret.tmpl.yaml
 outputFiles:
   - talconfig.yaml
-  - bootstrap/cilium-init-values.yaml
+  - bootstrap/cilium/cilium-init-values.yaml
+  - bootstrap/fluxcd/ssh-key-secret.yaml
 
 context:
   config:
     url: config.yaml
+
+suppressEmpty: true

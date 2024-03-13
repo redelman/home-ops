@@ -49,6 +49,8 @@ tasks:
     cmd: gomplate
     status:
       - test -f talconfig.yaml
+    preconditions:
+      - test -f config.yaml
 
   genconfig:
     desc: Generates talconfig.yaml. 
@@ -62,6 +64,9 @@ tasks:
     run: once
     cmd: talhelper gencommand apply --extra-flags="--insecure" | bash
     deps: [gensecrets, genconfig]
+    preconditions:
+      - test -f talconfig.yaml
+      - test -f {{.TALSECRETS_FILE}}
 
   apply:
     desc: Applies talos machine configurations to all nodes
@@ -89,6 +94,11 @@ tasks:
   flux:
     desc: Bootstraps FluxCD into a new cluster
     cmd:  flux bootstrap github --owner=redelman --repository=home-ops --branch=main --path=/kubernetes --private=false --personal=true --cluster-domain spyrja.internal
+    ignore_error: true
+    preconditions:
+      - test -f config.yaml
+      - sh: "[ $(yq '.bootstrap_fluxcd.enabled' < config.yaml) = 'true' ]"
+        msg: "fluxcd is not enabled"
 
   install-minimal:
     desc: Applies Talos machine configs, bootstraps etcd, and installs cilium
@@ -134,4 +144,5 @@ tasks:
       - rm -rf {{.CLUSTERCONFIG_DIR}}
       - rm -f {{.TALSECRETS_FILE}}
       - rm -f talconfig.yaml
-      - rm -f {{.BOOSTRAP_DIR}}/cilium-init-values.yaml
+      - rm -rf {{.BOOTSTRAP_DIR}}/cilium/
+      - rm -rf {{.BOOTSTRAP_DIR}}/flux/
