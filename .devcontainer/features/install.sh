@@ -21,11 +21,9 @@ for app in \
     "fluxcd/flux2!!?as=flux&type=script" \
     "go-task/task!!?as=task&type=script" \
     "hairyhenderson\gomplate!!!?as=gomplate&type=script" \
-    "helmfile/helmfile!!?as=helmfile&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
     "kubernetes-sigs/krew!!?as=krew&type=script" \
     "kubernetes-sigs/kustomize!!?as=kustomize&type=script" \
-    "stern/stern!!?as=stern&type=script" \
     "siderolabs/talos!!?as=talosctl&type=script" \
     "yannh/kubeconform!!?as=kubeconform&type=script" \
     "mikefarah/yq!!?as=yq&type=script"
@@ -40,7 +38,6 @@ for tool in cilium flux helm helmfile k9s kubectl kustomize talhelper talosctl; 
 done
 
 gh completion --shell bash >> /home/vscode/.bash_completion
-stern --completion bash >> /home/vscode/.bash_completion
 yq shell-completion bash >> /home/vscode/.bash_completion
 
 # Hooks

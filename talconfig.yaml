@@ -91,6 +91,12 @@ patches:
           - 192.168.64.1
 
   
+  # Extra kernel parameters
+  - |-
+    machine:
+      install:
+        extraKernelArgs:
+          - -lockdown lockdown=integrity
 
   
 
