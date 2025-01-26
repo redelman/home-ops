@@ -49,6 +49,7 @@ bootstrap_talos:
   # extensions:
   #   - siderolabs/gvisor
   #   - siderolabs/intel-ucode
+  #   - siderolabs/i915
   
   # If you need any extra kernel parameters, this is the place.
   # If you don't, leave this commented.
