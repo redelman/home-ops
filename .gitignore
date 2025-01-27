@@ -9,7 +9,8 @@
 config.yaml
 
 # Unencrypted secrets files
-secrets.yaml
+**/*.secrets.yaml
+**/secrets.yaml
 
 # Don't include the kubeconfig
 kubeconfig
