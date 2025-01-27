@@ -3,9 +3,9 @@
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.9.2
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.32.1
+kubernetesVersion: v1.31.5
 
-clusterName: home
+clusterName: homelab
 endpoint: https://192.168.64.20:6443
 domain: spyrja.internal
 
@@ -33,7 +33,6 @@ nodes:
           officialExtensions:
             - siderolabs/gvisor
             - siderolabs/intel-ucode
-            - siderolabs/i915
 
 controlPlane:
   networkInterfaces:

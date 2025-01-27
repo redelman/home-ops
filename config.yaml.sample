@@ -99,6 +99,9 @@ bootstrap_fluxcd:
   # Branch to use. Defaults to 'main'
   branch_name: main
 
+  # Path to the kubernetes applications that FluxCD will manage
+  path: /kubernetes
+
   # Path to the SSH key to use. It must have read/write access. Suggested
   # to use a separate user for FluxCD if at all possible. If you're using 
   # github and not a separate user (for personal repos, for example), this
