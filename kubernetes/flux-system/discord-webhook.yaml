@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: discord-webhook
+  namespace: flux-system
+stringData:
+  address: ENC[AES256_GCM,data:MDbVRVnQaOISfO1a+fv127DcfGSfIqxHH4GOF3K0vF9Gnq7OKDq8yyaImmLEBWDFoe4nQgofyWUDdHzR9kOqAk8kyigNHeDr4ML/ZWtf5ruqw72CC3yw4/Cnpe4+1oNhlkp1Y+ICl6Pj5Sz4VrsPqAB1EYeh+Xe4Qg==,iv:iaUJ1zcAfPPy/q1BA8i2kUEVAaIMkKXEzK5Ei2Y+rYg=,tag:9vqMw6oOXD8Ez4+wHUKbaQ==,type:str]
+sops:
+  kms: []
+  gcp_kms: []
+  azure_kv: []
+  hc_vault: []
+  age:
+    - recipient: age1cln0k3xlvkxy6tt3kwz6wxwxd4h639jey8ve0yl4q5zlezfs9dcsz0zwgg
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBVaXU5bzc0UEVYV1YwQTgw
+        NWY3emFqWDdlSEREOVRtNWxPc2pkeU9PSVFVCkp0RS9wTW0xSXVIR2NoY1pRMENz
+        T0hyRjc3allvQURpVDN4eUJ5VGxSNjQKLS0tIElVWXV1MWc1dGJlZjZoTE5va25a
+        ODZVWXR5SzVJNEkwVHpESTNiQnN5cjQKD/zobrq71cPXQIi87q0jMOm0Y64qvq+6
+        hySi9yWiNI7dMq0j3iFNzxqKiRCxa+2sQ9mNIJxTr51zzsYmgh0Cfg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2025-01-27T00:47:17Z"
+  mac: ENC[AES256_GCM,data:VP9moKSIprM5qAPczzLIgKC308cOYlzkZLQFGHiUA4MXPNckVNCx76VA6OIMbvajgA3b3QubGkwEH1lq9+l927LCeX8bVhfFUKR2Dh/L3Vkp+AycQLWC2kJnqhGBexSVnDGHXrbzMY40D66A9d4w+lPhBjGoKlqOPF+jlt8lVTc=,iv:vowtdkQ3TUrluRKTIn2MVUIGV8brNSqKiwZ/ofc0J5w=,tag:2rNIHqs5nArO3bYagaDNOw==,type:str]
+  pgp: []
+  encrypted_regex: ^(data|stringData)$
+  mac_only_encrypted: true
+  version: 3.9.1
