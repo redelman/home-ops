@@ -17,7 +17,6 @@ metadata:
   name: discord-webhook
   namespace: flux-system
 spec:
-  summary: "cluster addons"
   providerRef:
     name: discord
   eventSeverity: info
