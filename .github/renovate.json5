@@ -200,6 +200,7 @@
       fileMatch: [
         '(^|/)kubernetes/.+\\.ya?ml$',
         '(^|/)talconfig\\.yaml$',
+	'(^|/)talconfig\\.tmpl\\.yaml$',
       ],
       matchStrings: [
         '(?m:# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+?: "?(?<currentValue>\\S+?)"?$)',
